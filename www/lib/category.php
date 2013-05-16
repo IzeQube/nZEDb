@@ -25,6 +25,14 @@ class Category
 	const CAT_MOVIE_3D = 2050;
 	const CAT_MOVIE_BLURAY = 2060;
 	const CAT_MOVIE_DVD = 2070;
+	
+	const CAT_MOVIE_GER_SD = 2530;
+	const CAT_MOVIE_GER_HD = 2540;
+	const CAT_MOVIE_GER_BLURAY = 2550;
+	const CAT_MOVIE_GER_3D = 2560;
+	const CAT_MOVIE_GER_OTHER = 2520;
+	const CAT_MOVIE_GER_DVD = 2570;
+	
 	const CAT_MUSIC_MP3 = 3010;
 	const CAT_MUSIC_VIDEO = 3020;
 	const CAT_MUSIC_AUDIOBOOK = 3030;
@@ -45,6 +53,15 @@ class Category
 	const CAT_TV_SPORT = 5060;
 	const CAT_TV_ANIME = 5070;
 	const CAT_TV_DOCUMENTARY = 5080;
+	
+	const CAT_TV_GER_WEBDL = 5510;
+	const CAT_TV_GER_SD = 5530;
+	const CAT_TV_GER_HD = 5540;
+	const CAT_TV_GER_OTHER = 5550;
+	const CAT_TV_GER_SPORT = 5560;
+	const CAT_TV_GER_ANIME = 5570;
+	const CAT_TV_GER_DOCU = 5580;
+		
 	const CAT_XXX_DVD = 6010;
 	const CAT_XXX_WMV = 6020;
 	const CAT_XXX_XVID = 6030;
@@ -557,6 +574,7 @@ class Category
 		
 		if ($looksLikeTV && !preg_match('/[\.\-_ ](flac|imageset|mp3|xxx)[\.\-_ ]/i', $releasename))
 		{
+			if($this->isGermanTV($releasename)){ return true; }
 			if($this->isOtherTV($releasename)){ return true; }
 			if($this->categorizeforeign)
 			{
@@ -583,6 +601,87 @@ class Category
 		return false;
 	}
 	
+	//Look for german TV Series
+	public function isGermanTV($releasename)
+	{
+		if(preg_match('/staffel|Staffel|deutsch|Deutsch|german|German|ger|Ger| der /i', $releasename))
+		{
+			
+			//Sports
+			if(preg_match('/[\.\-_ ]?(Bellator|bundesliga|EPL|ESPN|FIA|la[\.\-_ ]liga|MMA|motogp|NFL|NCAA|PGA|red[\.\-_ ]bull.+race|Sengoku|Strikeforce|supercup|uefa|UFC|wtcc|WWE)[\.\-_ ]/i', $releasename))
+			{
+				$this->tmpCat = Category::CAT_TV_GER_SPORT;
+				return true;
+			}
+		
+			if(preg_match('/[\.\-_ ]?(DTM|FIFA|formula[\.\-_ ]1|indycar|Rugby|NASCAR|NBA|NHL|NRL|netball[\.\-_ ]anz|ROH|SBK|Superleague|The[\.\-_ ]Ultimate[\.\-_ ]Fighter|TNA|V8[\.\-_ ]Supercars|WBA|WrestleMania)[\.\-_ ]/i', $releasename))
+			{	
+				$this->tmpCat = Category::CAT_TV_GER_SPORT;
+				return true;
+			}
+		
+			if(preg_match('/[\.\-_ ]?(AFL|Grand Prix|Indy[\.\-_ ]Car|(iMPACT|Smoky[\.\-_ ]Mountain|Texas)[\.\-_ ]Wrestling|Moto[\.\-_ ]?GP|NSCS[\.\-_ ]ROUND|NECW|Poker|PWX|Rugby|WCW)[\.\-_ ]/i', $releasename))
+			{	
+				$this->tmpCat = Category::CAT_TV_GER_SPORT;
+				return true;
+			}
+		
+			if(preg_match('/[\.\-_ ]?(Horse)[\.\-_ ]Racing[\.\-_ ]/i', $releasename))
+			{	
+				$this->tmpCat = Category::CAT_TV_GER_SPORT;
+				return true;
+			}
+
+			//Doku
+			if (preg_match('/[\.\-_ ](Docu|Documentary)[\.\-_ ]/i', $releasename))
+			{
+				$this->tmpCat = Category::CAT_TV_GER_DOCUMENTARY;
+				return true;
+			}
+
+			//Web-DL
+			if (preg_match('/web[\.\-_ ]dl/i', $releasename))
+			{
+				$this->tmpCat = Category::CAT_TV_GER_WEBDL;
+				return true;
+			}
+			
+			//HD
+			if (preg_match('/1080(i|p)|720p/i', $releasename))
+			{
+				$this->tmpCat = Category::CAT_TV_GER_HD;
+				return true;
+			}
+			
+			//SD
+			if (preg_match('/(360|480|576)p|Complete[\.\-_ ]Season|dvdr|dvd5|dvd9|SD[\.\-_ ]TV|TVRip|xvid/i', $releasename))
+			{
+				$this->tmpCat = Category::CAT_TV_GER_SD;
+				return true;
+			}
+			
+			if (preg_match('/((H|P)D[\.\-_ ]?TV|DSR|WebRip)[\.\-_ ]x264/i', $releasename))
+			{
+				$this->tmpCat = Category::CAT_TV_GER_SD;
+				return true;
+			}
+			
+			if (preg_match('/s\d{1,2}[.-_ ]?e\d{1,2}|\s\d{3,4}\s/i', $releasename))
+			{
+				if (preg_match('/(H|P)D[\.\-_ ]?TV|BDRip[\.\-_ ]x264/i', $releasename))
+				{
+					$this->tmpCat = Category::CAT_TV_GER_SD;
+					return true;
+				}
+			}			
+			
+			$this->tmpCat = Category::CAT_TV_GER_OTHER;
+			return true;
+		}
+		
+		return false;
+	}
+
 	public function isOtherTV($releasename)
 	{
 		if(preg_match('/[\.\-_ ](S\d{1,3}.+Extras|SUBPACK)[\.\-_ ]/i', $releasename))
@@ -594,37 +693,26 @@ class Category
 	
 	public function isForeignTV($releasename)
 	{
-		if (!preg_match('/[\.\-_ ](NHL|stanley.+cup)[\.\-_ ]/', $releasename))
+
+		if(preg_match('/(seizoen|danish|flemish|dutch|nl\.?subbed|nl\.?sub|\.NL|\.ITA|norwegian|swedish|swesub|french|spanish)[\.\-]/i', $releasename))
 		{
-			if(preg_match('/[\.\-_ ](chinese|dk|fin|french|ger|heb|ita|jap|kor|nor|nordic|nl|pl|swe)[\.\-_ ]?(sub|dub)(ed|bed|s)?|<German>/i', $releasename))
-			{
-				$this->tmpCat = Category::CAT_TV_FOREIGN;
-				return true;
-			}
-		
-			if(preg_match('/[\.\-_ ](brazilian|chinese|croatian|danish|deutsch|dutch|estonian|flemish|finnish|french|german|greek|hebrew|icelandic|italian|ita|latin|mandarin|nordic|norwegian|polish|portuguese|japenese|japanese|russian|serbian|slovenian|spanish|spanisch|swedish|thai|turkish).+(720p|1080p|Divx|DOKU|DUB(BED)?|DLMUX|NOVARIP|RealCo|Sub(bed|s)?|Web[\.\-_ ]?Rip|WS|Xvid|x264)[\.\-_ ]/i', $releasename))
-			{
-				$this->tmpCat = Category::CAT_TV_FOREIGN;
-				return true;
-			}
-		
-			if(preg_match('/[\.\-_ ](720p|1080p|Divx|DOKU|DUB(BED)?|DLMUX|NOVARIP|RealCo|Sub(bed|s)?|Web[\.\-_ ]?Rip|WS|Xvid).+(brazilian|chinese|croatian|danish|deutsch|dutch|estonian|flemish|finnish|french|german|greek|hebrew|icelandic|italian|ita|latin|mandarin|nordic|norwegian|polish|portuguese|japenese|japanese|russian|serbian|slovenian|spanish|spanisch|swedish|thai|turkish)[\.\-_ ]/i', $releasename))
-			{
-				$this->tmpCat = Category::CAT_TV_FOREIGN;
-				return true;
-			}
-		
-			if(preg_match('/(S\d\dE\d\d|DOCU(MENTAIRE)?|TV)?[\.\-_ ](FRENCH|German|Dutch)[\.\-_ ](720p|1080p|dv(b|d)r(ip)?|LD|HD\-?TV|TV[\.\-_ ]?RIP|x264)[\.\-_ ]/i', $releasename))
-			{
-				$this->tmpCat = Category::CAT_TV_FOREIGN;
-				return true;
-			}
-		
-			if(preg_match('/[\.\-_ ]FastSUB|NL|nlvlaams|patrfa|RealCO|Seizoen|slosinh|Videomann|Vostfr|xslidian[\.\-_ ]|x264\-iZU/i', $releasename))
-			{
-				$this->tmpCat = Category::CAT_TV_FOREIGN;
-				return true;
-			}
+			$this->tmpCat = Category::CAT_TV_FOREIGN;
+			return true;
+		}
+		else if(preg_match('/\.des\.(?!moines)|Chinese\.Subbed|vostfr|Hebrew\.Dubbed|\.HEB\.|NLSubs|NL\-Subs|NLSub| NL |staffel|videomann/i', $releasename))
+		{
+			$this->tmpCat = Category::CAT_TV_FOREIGN;
+			return true;
+		}
+		else if(preg_match('/(danish|flemish|nlvlaams|dutch|nl\.?sub|swedish|swesub|icelandic|finnish|french|truefrench[\.\- ](?:.dtv|dvd|br|bluray|720p|1080p|LD|dvdrip|internal|r5|bdrip|sub|cd\d|dts|dvdr)|german|nl\.?subbed|deutsch|espanol|SLOSiNH|VOSTFR|norwegian|[\.\- ]pl|pldub|norsub|[\.\- ]ITA)[\.\- ]/i', $releasename))
+		{
+			$this->tmpCat = Category::CAT_TV_FOREIGN;
+			return true;
+		}
+		else if(preg_match('/(french)$/i', $releasename))
+		{
+			$this->tmpCat = Category::CAT_TV_FOREIGN;
+			return true;
 		}
 		return false;
 	}
@@ -747,6 +835,10 @@ class Category
 	{
 		if(preg_match('/[\.\-_ ]AVC|[\.\-_ ]|(B|H)(D|R)RIP|Bluray|BD[\.\-_ ]?(25|50)?|BR|Camrip|[\.\-_ ]\d{4}[\.\-_ ].+(720p|1080p|Cam)|DIVX|[\.\-_ ]DVD[\.\-_ ]|DVD-?(5|9|R|Rip)|Untouched|VHSRip|XVID|[\.\-_ ](DTS|TVrip)[\.\-_ ]/i', $releasename) && !preg_match('/auto(cad|desk)|divx[\.\-_ ]plus|[\.\-_ ]exe$|[\.\-_ ](jav|XXX)[\.\-_ ]|\wXXX(1080p|720p|DVD)|Xilisoft/i', $releasename))
 		{
+			
+			//German Modification
+			if($this->isMovieGerman($releasename)){ return true; }
+			
 			if($this->categorizeforeign)
 			{
 				if($this->isMovieForeign($releasename)){ return true; }
@@ -759,6 +851,58 @@ class Category
 			if($this->isMovieOther($releasename)){ return true; }
 		}
 		
+		return false;
+	}
+	
+	///Work out if a release is a German Movie
+
+	public function isMovieGerman($releasename)
+	{
+		//Anpassung fuer Deutsch
+        if(preg_match('/Deutsch|deutsch|German|ger|Ger|german| der/i', $releasename))
+        {
+
+	        //SD
+			if(preg_match('/(bdrip|divx|dvdscr|extrascene|dvdrip|\.CAM|vhsrip|xvid)[\.\-_ ]/i', $releasename))
+        	        {
+                	        $this->tmpCat = Category::CAT_MOVIE_GER_SD;
+                        	return true;
+	                }
+
+			//3D
+	                if(preg_match('/[\.\-_ ]3D\s?[\.\-_\[ ](1080p|(19|20)\d\d|AVC|BD(25|50)|Blu[\.\-_ ]?ray|CEE|Complete|GER|MVC|MULTi|SBS)[\.\-_ ]/i', $releasename))
+        	        {
+                	   	$this->tmpCat = Category::CAT_MOVIE_GER_3D;
+             	           	return true;
+                	}
+
+			//HD
+	                if(preg_match('/720p|1080p|AVC|VC1|VC\-1|web\-dl|wmvhd|x264|XvidHD/i', $releasename))
+        	        {
+                	        $this->tmpCat = Category::CAT_MOVIE_GER_HD;
+                        	return true;
+                	}
+
+			//BR
+	                if(preg_match('/bluray\-|[\.\-_ ]bd?[\.\-_ ]?(25|50)|blu-ray|Bluray\s\-\sUntouched|[\.\-_ ]untouched[\.\-_ ]/i', $releasename))
+        	        {
+                	        $this->tmpCat = Category::CAT_MOVIE_GER_BLURAY;
+                        	return true;
+	                }
+					
+			//DVD
+			
+					if(preg_match('/(dvd\-?r|[\.\-_ ]dvd|dvd9|dvd5|[\.\-_ ]r5)[\.\-_ ]/i', $releasename))
+					{
+						$this->tmpCat = Category::CAT_MOVIE_GER_DVD;
+						return true;
+					}
+
+			//Other
+			$this->tmpCat = Category::CAT_MOVIE_GER_OTHER;
+			return true;
+		}
+
 		return false;
 	}
 	
