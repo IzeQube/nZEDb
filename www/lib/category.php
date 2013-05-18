@@ -60,7 +60,7 @@ class Category
 	const CAT_TV_GER_OTHER = 5550;
 	const CAT_TV_GER_SPORT = 5560;
 	const CAT_TV_GER_ANIME = 5570;
-	const CAT_TV_GER_DOCU = 5580;
+	const CAT_TV_GER_DOCUMENTARY = 5580;
 		
 	const CAT_XXX_DVD = 6010;
 	const CAT_XXX_WMV = 6020;
@@ -569,7 +569,7 @@ class Category
 	
 	public function isTV($releasename, $assumeTV=TRUE)
 	{
-		$looksLikeTV = preg_match('/[\.\-_ ](\dx\d\d|s\d{1,3}[.-_ ]?(e|d)\d{1,3}|C4TV|Complete[\.\-_ ]Season|DSR|(D|H|P)DTV|EP[\.\-_ ]?\d{1,3}|S\d{1,3}.+Extras|SUBPACK|Season[\.\-_ ]\d{1,2}|WEB\-DL|WEBRip)[\.\-_ ]|TV[\.\-_ ](19|20)\d\d|TrollHD/i', $releasename);
+		$looksLikeTV = preg_match('/[\.\-_ ](\dx\d\d|s\d{1,3}[.-_ ]?(e|d)\d{1,3}|C4TV|Complete[\.\-_ ]Season|DSR|(D|H|P)DTV|EP[\.\-_ ]?\d{1,3}|S\d{1,3}.+Extras|SUBPACK|DOKU|Season[\.\-_ ]\d{1,2}|WEB\-DL|WEBRip)[\.\-_ ]|TV[\.\-_ ](19|20)\d\d|TrollHD/i', $releasename);
 		$looksLikeSportTV = preg_match('/[\.\-_ ]((19|20)\d\d[\.\-_ ]\d{1,2}[\.\-_ ]\d{1,2}[\.\-_ ]VHSRip|Indy[\.\-_ ]?Car|(iMPACT|Smoky[\.\-_ ]Mountain|Texas)[\.\-_ ]Wrestling|Moto[\.\-_ ]?GP|NSCS[\.\-_ ]ROUND|NECW[\.\-_ ]TV|(Per|Post)\-Show|PPV|WrestleMania|WCW|WEB[\.\-_ ]HD|WWE[\.\-_ ](Monday|NXT|RAW|Smackdown|Superstars|WrestleMania))[\.\-_ ]/i', $releasename);
 		
 		if ($looksLikeTV && !preg_match('/[\.\-_ ](flac|imageset|mp3|xxx)[\.\-_ ]/i', $releasename))
@@ -633,7 +633,7 @@ class Category
 			}
 
 			//Doku
-			if (preg_match('/[\.\-_ ](Docu|Documentary)[\.\-_ ]/i', $releasename))
+			if (preg_match('/[\.\-_ ](Docu|Documentary|Doku|Dokumentation)[\.\-_ ]/i', $releasename))
 			{
 				$this->tmpCat = Category::CAT_TV_GER_DOCUMENTARY;
 				return true;
